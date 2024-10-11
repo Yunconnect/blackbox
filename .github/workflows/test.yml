@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
           cache: 'gradle'
 
       - name: Configure Gradle Properties
@@ -32,9 +32,7 @@ jobs:
       - name: Prepare App
         run: |
           mkdir -p ${{ github.workspace }}/apk/
-          for file in $(find ~ -name "*.apk" -print); do
-            mv "$file" ${{ github.workspace }}/apk/
-          done
+          find ~ -name "*.apk" -exec mv {} ${{ github.workspace }}/apk/ \;
 
       - name: Upload App To Artifact
         uses: actions/upload-artifact@v3
