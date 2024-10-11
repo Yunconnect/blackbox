@@ -133,7 +133,7 @@ public class ApiConfig {
         // Embedded Source : Update in Strings.xml if required
         String apiUrl = Hawk.get(HawkConfig.API_URL, HomeActivity.getRes().getString(R.string.app_source));
         if (apiUrl.isEmpty()) {
-            callback.error("https://gitee.com/nycdkj/Yun-box/raw/master/TVBox.json");
+            callback.error("https://gitee.com/nycdkj/Yun-box/raw/master/json/TVBox.bmp");
             return;
         }
         File cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(apiUrl));
