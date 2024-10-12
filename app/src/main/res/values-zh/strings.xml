@@ -49,8 +49,8 @@
 
     // Settings Menu Page //
     <string name="mn_config">云TV盒子</string>
-    <string name="mn_home">线路源</string>
-    <string name="mn_home_show">线路源显示</string>
+    <string name="mn_home">云TV盒子线路</string>
+    <string name="mn_home_show">云盒线路显示</string>
     <string name="mn_home_type">推荐</string>
     <string name="mn_icon">按钮位置</string>
     <string name="mn_history_num">历史条数</string>
@@ -77,7 +77,7 @@
     <string name="mn_fastsearch">聚搜</string>
 
     // Settings Dialog Pop-Up //
-    <string name="dia_source">请选择数据源</string>
+    <string name="dia_source">请选择云TV盒子线路</string>
     <string name="dia_hm_type">请选择列表数据</string>
     <string name="dia_hm_icon">首页按钮位置</string>
     <string name="dia_history">历史条数保留</string>
