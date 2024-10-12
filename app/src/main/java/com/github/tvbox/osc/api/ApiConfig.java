@@ -130,11 +130,10 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        // Embedded Source : Update in Strings.xml if required
-        String apiUrl = Hawk.get(HawkConfig.API_URL, HomeActivity.getRes().getString(R.string.app_source));
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/nycdkj/Yun-box/raw/master/json/TVBox.bmp");
         if (apiUrl.isEmpty()) {
-            callback.error("https://gitee.com/nycdkj/Yun-box/raw/master/json/TVBox.bmp");
-            return;
+            callback.error("-1");
+            return; 
         }
         File cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(apiUrl));
         if (useCache && cache.exists()) {
