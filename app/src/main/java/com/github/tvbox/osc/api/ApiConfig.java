@@ -130,7 +130,7 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/nycdkj/Yun-box/raw/master/yingshi/TVBox.bmp");
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/nycdkj/Yun-box/raw/master/TVBox/TVBox.bmp");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;
