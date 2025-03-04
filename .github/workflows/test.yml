@@ -1,10 +1,6 @@
 name: Test Build
 
 on:
-#  push:
-#    branches:
-#      - main
-#  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -21,11 +17,11 @@ jobs:
       - name: Prepare App
         run: |
           mkdir -p ${{ github.workspace }}/apk/
-          for file in `find ~ -name "*.apk" -print`; do
+          for file in $(find ~ -name "*.apk" -print); do
             mv "$file" ${{ github.workspace }}/apk/
           done
       - name: Upload App To Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # 更新为 v4 版本
         with:
           name: com.github.tvbox.osc
           path: ${{ github.workspace }}/apk/*
