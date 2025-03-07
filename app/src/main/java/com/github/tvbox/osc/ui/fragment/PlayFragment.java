@@ -1281,7 +1281,7 @@ public class PlayFragment extends BaseLazyFragment {
         EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_REFRESH, mVodInfo.getplayIndex()));
         EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_REFRESH_NOTIFY, mVodInfo.name + "&&" + vs.name));
         String playTitleInfo = mVodInfo.name + " : " + vs.name;
-        setTip("正在获取播放信息", true, false);
+        setTip("云TV影视正在播放中", true, false);
         mController.setTitle(playTitleInfo);
 
         stopParse();
