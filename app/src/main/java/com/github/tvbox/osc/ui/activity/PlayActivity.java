@@ -1560,7 +1560,7 @@ public class PlayActivity extends BaseActivity {
         stopParse();
         initParseLoadFound();
         if (pb.getType() == 0) {
-            setTip("正在嗅探播放地址", true, false);
+            setTip("云TV影视正在嗅探中", true, false);
             mHandler.removeMessages(100);
             mHandler.sendEmptyMessageDelayed(100, 20 * 1000);
             if (pb.getExt() != null) {
@@ -1587,7 +1587,7 @@ public class PlayActivity extends BaseActivity {
             }
             loadWebView(pb.getUrl() + webUrl);
         } else if (pb.getType() == 1) { // json 解析
-            setTip("正在解析播放地址", true, false);
+            setTip("云TV影视正在播放中", true, false);
             // 解析ext
             HttpHeaders reqHeaders = new HttpHeaders();
             try {
@@ -1653,7 +1653,7 @@ public class PlayActivity extends BaseActivity {
                         }
                     });
         } else if (pb.getType() == 2) { // json 扩展
-            setTip("正在解析播放地址", true, false);
+            setTip("云TV影视正在播放中", true, false);
             parseThreadPool = Executors.newSingleThreadExecutor();
             LinkedHashMap<String, String> jxs = new LinkedHashMap<>();
             for (ParseBean p : ApiConfig.get().getParseBeanList()) {
@@ -1704,7 +1704,7 @@ public class PlayActivity extends BaseActivity {
                 }
             });
         } else if (pb.getType() == 3) { // json 聚合
-            setTip("正在解析播放地址", true, false);
+            setTip("云TV影视正在播放中", true, false);
             parseThreadPool = Executors.newSingleThreadExecutor();
             LinkedHashMap<String, HashMap<String, String>> jxs = new LinkedHashMap<>();
             String extendName = "";
@@ -1736,7 +1736,7 @@ public class PlayActivity extends BaseActivity {
                                 public void run() {
                                     String mixParseUrl = DefaultConfig.checkReplaceProxy(rs.optString("url", ""));
                                     stopParse();
-                                    setTip("正在嗅探播放地址", true, false);
+                                    setTip("云TV影视正在嗅探中", true, false);
                                     mHandler.removeMessages(100);
                                     mHandler.sendEmptyMessageDelayed(100, 20 * 1000);
                                     loadWebView(mixParseUrl);
