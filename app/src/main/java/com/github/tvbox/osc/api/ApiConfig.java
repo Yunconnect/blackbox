@@ -79,6 +79,9 @@ public class ApiConfig {
         sourceBeanList = new LinkedHashMap<>();
         liveChannelGroupList = new ArrayList<>();
         parseBeanList = new ArrayList<>();
+
+        // 直接硬编码添加解析规则
+        addHardcodedParse();
     }
 
     public static ApiConfig get() {
@@ -91,6 +94,25 @@ public class ApiConfig {
         }
         return instance;
     }
+
+    /**
+     * 直接硬编码添加解析规则
+     */
+    private void addHardcodedParse() {
+        // 添加解析规则
+        ParseBean parse = new ParseBean();
+        parse.setName("JX云解析"); // 解析规则名称
+        parse.setType(1); // 解析规则类型
+        parse.setUrl("http://jxyun.yunqiji.vip/api/?key=DR6KVJNPjkIQpkiyNH&url="); // 解析规则 URL
+        parseBeanList.add(parse);
+
+        // 设置默认解析规则
+        if (!parseBeanList.isEmpty()) {
+            setDefaultParse(parseBeanList.get(0));
+        }
+    }
+
+    // ... 其他方法保持不变 ...
 
     public static String FindResult(String json, String configKey) {
         String content = json;
