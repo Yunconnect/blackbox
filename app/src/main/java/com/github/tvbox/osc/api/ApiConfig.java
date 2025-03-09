@@ -101,22 +101,105 @@ public class ApiConfig {
     private void addHardcodedParses() {
         // 添加解析规则 1
         ParseBean parse1 = new ParseBean();
-        parse1.setName("JX云解析");
+        parse1.setName("AddTo解析");
         parse1.setType(1);
-        parse1.setUrl("http://jxyun.yunqiji.vip/api/?key=DR6KVJNPjkIQpkiyNH&url=");
+        parse1.setUrl("https://jx.addto.cn/api/jsonindex.php/?key=Fzz3lnaVyLpVGCS948&url=");
         parseBeanList.add(parse1);
 
         // 添加解析规则 2
         ParseBean parse2 = new ParseBean();
-        parse2.setName("AddTo解析");
+        parse2.setName("JX云解析");
         parse2.setType(2);
-        parse2.setUrl("https://jx.addto.cn/api/jsonindex.php/?key=Fzz3lnaVyLpVGCS948&url=");
+        parse2.setUrl("http://jxyun.yunqiji.vip/api/?key=DR6KVJNPjkIQpkiyNH&url=");
         parseBeanList.add(parse2);
 
         // 设置默认解析规则
         if (!parseBeanList.isEmpty()) {
             setDefaultParse(parseBeanList.get(0));
         }
+    }
+
+    /**
+     * 播放视频
+     *
+     * @param videoUrl 原始视频链接
+     */
+    public void playVideo(String videoUrl) {
+        // 获取解析规则列表
+        List<ParseBean> parseBeans = getParseBeanList();
+        if (parseBeans == null || parseBeans.isEmpty()) {
+            // 没有可用的解析规则
+            showError("没有可用的解析规则");
+            return;
+        }
+
+        // 最大重试次数
+        int maxRetries = 3;
+
+        // 遍历解析规则
+        for (ParseBean parseBean : parseBeans) {
+            int retryCount = 0;
+            while (retryCount < maxRetries) {
+                try {
+                    // 生成播放链接
+                    String playUrl = parseBean.getUrl() + videoUrl;
+
+                    // 尝试播放
+                    boolean success = startPlayback(playUrl);
+                    if (success) {
+                        // 播放成功，退出循环
+                        System.out.println("播放成功，使用解析规则: " + parseBean.getName());
+                        return;
+                    } else {
+                        // 播放失败，重试
+                        retryCount++;
+                        System.out.println("解析规则 " + parseBean.getName() + " 第 " + retryCount + " 次重试");
+                    }
+                } catch (Exception e) {
+                    // 发生异常，重试
+                    retryCount++;
+                    e.printStackTrace();
+                }
+            }
+
+            // 如果当前解析规则重试次数用完，切换到下一个解析规则
+            if (retryCount >= maxRetries) {
+                showError("解析规则 " + parseBean.getName() + " 无法播放，尝试下一个规则");
+            }
+        }
+
+        // 所有解析规则都尝试失败
+        showError("所有解析规则都无法播放");
+    }
+
+    /**
+     * 尝试播放视频
+     *
+     * @param playUrl 播放链接
+     * @return true 表示播放成功，false 表示播放失败
+     */
+    private boolean startPlayback(String playUrl) {
+        // 实现播放逻辑
+        // 这里可以调用播放器 API 播放视频
+        try {
+            // 模拟播放逻辑
+            System.out.println("尝试播放: " + playUrl);
+            // 假设播放成功
+            return true;
+        } catch (Exception e) {
+            // 播放失败
+            return false;
+        }
+    }
+
+    /**
+     * 显示错误提示
+     *
+     * @param message 错误信息
+     */
+    private void showError(String message) {
+        // 显示错误提示
+        System.out.println(message);
     }
 
     // ... 其他原有代码保持不变 ...
