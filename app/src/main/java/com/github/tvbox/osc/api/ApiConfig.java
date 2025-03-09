@@ -81,7 +81,7 @@ public class ApiConfig {
         parseBeanList = new ArrayList<>();
 
         // 直接硬编码添加解析规则
-        addHardcodedParse();
+        addHardcodedParses();
     }
 
     public static ApiConfig get() {
@@ -98,13 +98,20 @@ public class ApiConfig {
     /**
      * 直接硬编码添加解析规则
      */
-    private void addHardcodedParse() {
-        // 添加解析规则
-        ParseBean parse = new ParseBean();
-        parse.setName("JX云解析"); // 解析规则名称
-        parse.setType(1); // 解析规则类型
-        parse.setUrl("http://jxyun.yunqiji.vip/api/?key=DR6KVJNPjkIQpkiyNH&url="); // 解析规则 URL
-        parseBeanList.add(parse);
+    private void addHardcodedParses() {
+        // 添加解析规则 1
+        ParseBean parse1 = new ParseBean();
+        parse1.setName("JX云解析");
+        parse1.setType(1);
+        parse1.setUrl("http://jxyun.yunqiji.vip/api/?key=DR6KVJNPjkIQpkiyNH&url=");
+        parseBeanList.add(parse1);
+
+        // 添加解析规则 2
+        ParseBean parse2 = new ParseBean();
+        parse2.setName("AddTo解析");
+        parse2.setType(2);
+        parse2.setUrl("https://jx.addto.cn/api/jsonindex.php/?key=Fzz3lnaVyLpVGCS948&url=");
+        parseBeanList.add(parse2);
 
         // 设置默认解析规则
         if (!parseBeanList.isEmpty()) {
@@ -112,7 +119,7 @@ public class ApiConfig {
         }
     }
 
-    // ... 其他方法保持不变 ...
+    // ... 其他原有代码保持不变 ...
 
     public static String FindResult(String json, String configKey) {
         String content = json;
@@ -820,7 +827,7 @@ public class ApiConfig {
                 url = "http://" + url;
             }
             if (url.startsWith("clan://")) url = clanToAddress(url);
-            content = content.replace("./", url.substring(0, url.lastIndexOf("/") + 1));
+            content = content.replace("./", url.substring(0, url.lastIndexOf("/") + 1);
         }
         return content;
     }
