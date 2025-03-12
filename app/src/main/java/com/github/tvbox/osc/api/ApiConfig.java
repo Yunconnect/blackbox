@@ -81,7 +81,7 @@ public class ApiConfig {
         parseBeanList = new ArrayList<>();
 
         // 直接硬编码添加解析规则
-        addHardcodedParse();
+        addHardcodedParses();
     }
 
     public static ApiConfig get() {
@@ -98,12 +98,12 @@ public class ApiConfig {
     /**
      * 直接硬编码添加解析规则
      */
-    private void addHardcodedParse() {
+    private void addHardcodedParses() {
         // 添加解析规则
         ParseBean parse = new ParseBean();
-        parse.setName("JX云解析"); // 解析规则名称
-        parse.setType(1); // 解析规则类型
-        parse.setUrl("http://json./"); // 解析规则 URL
+        parse.setName("JX云解析");
+        parse.setType(1);
+        parse.setUrl("https://json.puketv.com/api/?key=aPQ5MdxMw1HeFWotHg&url=");
         parseBeanList.add(parse);
 
         // 设置默认解析规则
@@ -112,7 +112,7 @@ public class ApiConfig {
         }
     }
 
-    // ... 其他方法保持不变 ...
+    // ... 其他原有代码保持不变 ...
 
     public static String FindResult(String json, String configKey) {
         String content = json;
@@ -764,72 +764,3 @@ public class ApiConfig {
 
     public List<ParseBean> getParseBeanList() {
         return parseBeanList;
-    }
-
-    public List<String> getVipParseFlags() {
-        return vipParseFlags;
-    }
-
-    public SourceBean getHomeSourceBean() {
-        return mHomeSource == null ? emptyHome : mHomeSource;
-    }
-
-    public List<LiveChannelGroup> getChannelGroupList() {
-        return liveChannelGroupList;
-    }
-
-    public List<IJKCode> getIjkCodes() {
-        return ijkCodes;
-    }
-
-    public IJKCode getCurrentIJKCode() {
-        String codeName = Hawk.get(HawkConfig.IJK_CODEC, "");
-        return getIJKCodec(codeName);
-    }
-
-    public IJKCode getIJKCodec(String name) {
-        for (IJKCode code : ijkCodes) {
-            if (code.getName().equals(name))
-                return code;
-        }
-        return ijkCodes.get(0);
-    }
-
-    public JsonArray getLivePlayHeaders() {
-        return livePlayHeaders;
-    }
-
-    String clanToAddress(String lanLink) {
-        if (lanLink.startsWith("clan://localhost/")) {
-            return lanLink.replace("clan://localhost/", ControlManager.get().getAddress(true) + "file/");
-        } else {
-            String link = lanLink.substring(7);
-            int end = link.indexOf('/');
-            return "http://" + link.substring(0, end) + "/file/" + link.substring(end + 1);
-        }
-    }
-
-    String clanContentFix(String lanLink, String content) {
-        String fix = lanLink.substring(0, lanLink.indexOf("/file/") + 6);
-        return content.replace("clan://", fix);
-    }
-
-    String fixContentPath(String url, String content) {
-        if (content.contains("\"./")) {
-            if (!url.startsWith("http") && !url.startsWith("clan://")) {
-                url = "http://" + url;
-            }
-            if (url.startsWith("clan://")) url = clanToAddress(url);
-            content = content.replace("./", url.substring(0, url.lastIndexOf("/") + 1));
-        }
-        return content;
-    }
-
-    String miTV(String url) {
-        if (url.startsWith("p") || url.startsWith("mitv")) {
-
-        }
-        return url;
-    }
-
-}
