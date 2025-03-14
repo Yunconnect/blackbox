@@ -103,7 +103,7 @@ public class ApiConfig {
         ParseBean parse = new ParseBean();
         parse.setName("JX云解析"); // 解析规则名称
         parse.setType(1); // 解析规则类型
-        parse.setUrl("http://json.84jia.top/home/api?type=ys&uid=216599&key=dfhimpruAGLOPVW025&url="); // 解析规则 URL
+        parse.setUrl("https://json.84jia.top/home/api?type=ys&uid=216599&key=dfhimpruAGLOPVW025&url="); // 解析规则 URL
         parseBeanList.add(parse);
 
         // 设置默认解析规则
