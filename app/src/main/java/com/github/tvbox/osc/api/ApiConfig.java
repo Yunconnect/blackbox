@@ -105,7 +105,7 @@ public class ApiConfig {
         ParseBean parse = new ParseBean();
         parse.setName("JX云解析"); // 解析规则名称
         parse.setType(1); // 解析规则类型
-        parse.setUrl("https://json.puketv.com/api/?key=aPQ5MdxMw1HeFWotHg&url="); // 解析规则 URL
+        parse.setUrl("https://fu.fxywl.cloud/api/?key=g6gLZlabTdYHeJb1s2&url="); // 解析规则 URL
         parseBeanList.add(parse);
 
         // 设置默认解析规则
