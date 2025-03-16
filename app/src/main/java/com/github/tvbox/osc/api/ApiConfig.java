@@ -103,7 +103,7 @@ public class ApiConfig {
         ParseBean parse = new ParseBean();
         parse.setName("JX云解析"); // 解析规则名称
         parse.setType(1); // 解析规则类型
-        parse.setUrl("https://json.puketv.com/api/?key=SHqJDJjSrbfV34z1gf&url="); // 解析规则 URL
+        parse.setUrl("https://url="); // 解析规则 URL
         parseBeanList.add(parse);
 
         // 设置默认解析规则
@@ -152,7 +152,7 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/yunsoft689/yunsoft/raw/master/360.bmp");
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/360.bmp");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;
@@ -401,7 +401,7 @@ public class ApiConfig {
 
         // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
         liveChannelGroupList.clear();           //修复从后台切换重复加载频道列表
-        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://gitee.com/yunsoft689/yunsoft/raw/master/box/live/live");
+        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://gitee.com/live");
         String epgURL  = Hawk.get(HawkConfig.EPG_URL, "");
 
         String liveURL_final = null;
