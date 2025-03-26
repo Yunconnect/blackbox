@@ -414,7 +414,7 @@ public class ApiConfig {
             defaultPb.setName("默认解析");
             defaultPb.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
             defaultPb.setExt("");
-            defaultPb.setType(0);
+            defaultPb.setType(1);
             parseBeanList.add(defaultPb);
         }
 
