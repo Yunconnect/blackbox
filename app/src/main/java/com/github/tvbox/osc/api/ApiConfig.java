@@ -136,7 +136,7 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/yunsoft689/yunsoft/raw/master/360.bmp");
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://4941.kstore.space/yun/TVBox.bmp");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;  
@@ -408,18 +408,21 @@ public class ApiConfig {
             }
         }
         
-        // 2. 如果没有配置则添加默认解析
+        // 2. 如果没有配置则添加默认解析（修改后的部分）
         if (parseBeanList.isEmpty()) {
             ParseBean defaultPb = new ParseBean();
-            defaultPb.setName("默认解析");
+            defaultPb.setName("");  // 设置为空字符串，不会显示名称
             defaultPb.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
             defaultPb.setExt("");
-            defaultPb.setType(1);
+            defaultPb.setType(0);
+            defaultPb.setDefault(true); // 直接设置为默认解析
             parseBeanList.add(defaultPb);
+            mDefaultParse = defaultPb; // 直接设置为当前默认解析
+            Hawk.put(HawkConfig.DEFAULT_PARSE, ""); // 存储空名称
         }
 
-        // 3. 设置默认解析（兼容原有Hawk存储逻辑）
-        if (!parseBeanList.isEmpty()) {
+        // 3. 设置默认解析（简化逻辑，因为上面已经处理）
+        if (!parseBeanList.isEmpty() && mDefaultParse == null) {
             String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
             if (!TextUtils.isEmpty(defaultParse)) {
                 for (ParseBean pb : parseBeanList) {
@@ -437,7 +440,7 @@ public class ApiConfig {
 
         // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
         liveChannelGroupList.clear();
-        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://gitee.com/yunsoft689/yunsoft/raw/master/box/live/live");
+        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://4941.kstore.space/yun/lib/live");
         String epgURL = Hawk.get(HawkConfig.EPG_URL, "");
         String liveURL_final = null;
         try {
