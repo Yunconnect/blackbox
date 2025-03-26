@@ -1415,7 +1415,7 @@ public class PlayFragment extends BaseLazyFragment {
         if (pb.getType() == 4) {
             parseMix(pb,true);
         }else if (pb.getType() == 0) {
-            setTip("正在嗅探播放地址", true, false);
+            setTip("云TV盒子正在嗅探中", true, false);
             mHandler.removeMessages(100);
             mHandler.sendEmptyMessageDelayed(100, 20 * 1000);
             if(pb.getExt()!=null){
@@ -1443,7 +1443,7 @@ public class PlayFragment extends BaseLazyFragment {
             loadWebView(pb.getUrl() + webUrl);
 
         } else if (pb.getType() == 1) { // json 解析
-            setTip("正在解析播放地址", true, false);
+            setTip("云TV盒子正在播放中", true, false);
             // 解析ext
             HttpHeaders reqHeaders = new HttpHeaders();
             try {
@@ -1496,20 +1496,20 @@ public class PlayFragment extends BaseLazyFragment {
                                 playUrl(rs.getString("url"), headers);
                             } catch (Throwable e) {
                                 e.printStackTrace();
-                                errorWithRetry("解析错误", false);
-//                                setTip("解析错误", false, true);
+                                errorWithRetry("云TV盒子播放错误", false);
+//                                setTip("云TV盒子播放错误", false, true);
                             }
                         }
 
                         @Override
                         public void onError(Response<String> response) {
                             super.onError(response);
-                            errorWithRetry("解析错误", false);
-//                            setTip("解析错误", false, true);
+                            errorWithRetry("云TV盒子播放错误", false);
+//                            setTip("云TV盒子播放错误", false, true);
                         }
                     });
         } else if (pb.getType() == 2) { // json 扩展
-            setTip("正在解析播放地址", true, false);
+            setTip("云TV盒子正在播放中", true, false);
             parseThreadPool = Executors.newSingleThreadExecutor();
             LinkedHashMap<String, String> jxs = new LinkedHashMap<>();
             for (ParseBean p : ApiConfig.get().getParseBeanList()) {
@@ -1522,8 +1522,8 @@ public class PlayFragment extends BaseLazyFragment {
                 public void run() {
                     JSONObject rs = ApiConfig.get().jsonExt(pb.getUrl(), jxs, webUrl);
                     if (rs == null || !rs.has("url") || rs.optString("url").isEmpty()) {
-//                        errorWithRetry("解析错误", false);
-                        setTip("解析错误", false, true);
+//                        errorWithRetry("云TV盒子播放错误", false);
+                        setTip("云TV盒子播放错误", false, true);
                     } else {
                         HashMap<String, String> headers = null;
                         if (rs.has("header")) {
@@ -1546,7 +1546,7 @@ public class PlayFragment extends BaseLazyFragment {
                             requireActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "解析来自:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, "云TV盒子:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -1565,7 +1565,7 @@ public class PlayFragment extends BaseLazyFragment {
         }
     }
     private void parseMix(ParseBean pb,boolean isSuper){
-        setTip("正在解析播放地址", true, false);
+        setTip("云TV盒子正在播放中", true, false);
         parseThreadPool = Executors.newSingleThreadExecutor();
         LinkedHashMap<String, HashMap<String, String>> jxs = new LinkedHashMap<>();
         String extendName = "";
@@ -1585,8 +1585,8 @@ public class PlayFragment extends BaseLazyFragment {
             public void run() {
                 JSONObject rs = isSuper? SuperParse.parse(jxs, parseFlag, webUrl):ApiConfig.get().jsonExtMix(parseFlag + "111", pb.getUrl(), finalExtendName, jxs, webUrl);
                 if (rs == null || !rs.has("url") || rs.optString("url").isEmpty()) {
-//                        errorWithRetry("解析错误", false);
-                    setTip("解析错误", false, true);
+//                        errorWithRetry("云TV盒子播放错误", false);
+                    setTip("云TV盒子播放错误", false, true);
                 } else {
                     if (rs.has("parse") && rs.optInt("parse", 0) == 1) {
                         if (rs.has("ua")) {
@@ -1598,7 +1598,7 @@ public class PlayFragment extends BaseLazyFragment {
                             public void run() {
                                 String mixParseUrl = DefaultConfig.checkReplaceProxy(rs.optString("url", ""));
                                 stopParse();
-                                setTip("正在嗅探播放地址", true, false);
+                                setTip("云TV盒子正在嗅探中", true, false);
                                 mHandler.removeMessages(100);
                                 mHandler.sendEmptyMessageDelayed(100, 20 * 1000);
                                 loadWebView(mixParseUrl);
@@ -1626,7 +1626,7 @@ public class PlayFragment extends BaseLazyFragment {
                             requireActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "解析来自:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, "云TV盒子:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
