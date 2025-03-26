@@ -412,7 +412,7 @@ public class ApiConfig {
         if (parseBeanList.isEmpty()) {
             ParseBean defaultPb = new ParseBean();
             defaultPb.setName("");  // 设置为空字符串，不会显示名称
-            defaultPb.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
+            defaultPb.setUrl("https://jx.84jia.com/api/?key=JBPsZJyg2q5Vn3nZP3&url=");
             defaultPb.setExt("");
             defaultPb.setType(1);
             defaultPb.setDefault(true); // 直接设置为默认解析
