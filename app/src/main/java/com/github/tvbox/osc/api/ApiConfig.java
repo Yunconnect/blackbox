@@ -53,6 +53,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.tvbox.osc.util.LOG;
+
 /**
  * @author pj567
  * @date :2020/12/18
@@ -135,11 +136,10 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        // Embedded Source : Update in Strings.xml if required
-        String apiUrl = Hawk.get(HawkConfig.API_URL, HomeActivity.getRes().getString(R.string.app_source));
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://4941.kstore.space/yun/TVBox.bmp");
         if (apiUrl.isEmpty()) {
-            callback.error("源地址为空");
-            return;
+            callback.error("-1");
+            return;  
         }
         File cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(apiUrl));
         if (useCache && cache.exists()) {
@@ -341,18 +341,13 @@ public class ApiConfig {
         parseJson(apiUrl, sb.toString());
     }
 
-    private static  String jarCache ="true";
+    private static String jarCache = "true";
     private void parseJson(String apiUrl, String jsonStr) {
-
         JsonObject infoJson = new Gson().fromJson(jsonStr, JsonObject.class);
         jarCache = DefaultConfig.safeJsonString(infoJson, "jarCache", "true");
-        // spider
         spider = DefaultConfig.safeJsonString(infoJson, "spider", "");
-        // wallpaper
         wallpaper = DefaultConfig.safeJsonString(infoJson, "wallpaper", "");
-        // 直播播放请求头
         livePlayHeaders = infoJson.getAsJsonArray("livePlayHeaders");
-        // 远端站点源
         SourceBean firstSite = null;
         JsonArray sites = infoJson.has("video") ? infoJson.getAsJsonObject("video").getAsJsonArray("sites") : infoJson.get("sites").getAsJsonArray();
         for (JsonElement opt : sites) {
@@ -382,17 +377,19 @@ public class ApiConfig {
             sourceBeanList.put(siteKey, sb);
         }
         if (sourceBeanList != null && sourceBeanList.size() > 0) {
-            String home = Hawk.get(HawkConfig.HOME_API, "https://4941.kstore.space/yun/TVBox.bmp");
+            String home = Hawk.get(HawkConfig.HOME_API, "");
             SourceBean sh = getSource(home);
             if (sh == null || sh.getHide() == 1)
                 setSourceBean(firstSite);
             else
                 setSourceBean(sh);
         }
-        // 需要使用vip解析的flag
         vipParseFlags = DefaultConfig.safeJsonStringList(infoJson, "flags");
-        // 解析地址
+
+        // ===================== 修改的解析处理开始 =====================
         parseBeanList.clear();
+        
+        // 1. 优先加载配置中的解析
         if (infoJson.has("parses")) {
             JsonArray parses = infoJson.get("parses").getAsJsonArray();
             for (JsonElement opt : parses) {
@@ -405,27 +402,43 @@ public class ApiConfig {
                 pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
                 parseBeanList.add(pb);
             }
+            
             if(!parseBeanList.isEmpty()){
                 addSuperParse();
             }
         }
-        // 获取默认解析
-        if (parseBeanList != null && parseBeanList.size() > 0) {
-            String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
-            if (!TextUtils.isEmpty(defaultParse))
-                for (ParseBean pb : parseBeanList) {
-                    if (pb.getName().equals(defaultParse))
-                        setDefaultParse(pb);
-                }
-            if (mDefaultParse == null)
-                setDefaultParse(parseBeanList.get(0));
+        
+        // 2. 如果没有配置则添加默认解析
+        if (parseBeanList.isEmpty()) {
+            ParseBean defaultPb = new ParseBean();
+            defaultPb.setName("默认解析");
+            defaultPb.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
+            defaultPb.setExt("");
+            defaultPb.setType(0);
+            parseBeanList.add(defaultPb);
         }
 
-        // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
-        liveChannelGroupList.clear();           //修复从后台切换重复加载频道列表
-        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://4941.kstore.space/yun/lib/live");
-        String epgURL  = Hawk.get(HawkConfig.EPG_URL, "");
+        // 3. 设置默认解析（兼容原有Hawk存储逻辑）
+        if (!parseBeanList.isEmpty()) {
+            String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
+            if (!TextUtils.isEmpty(defaultParse)) {
+                for (ParseBean pb : parseBeanList) {
+                    if (pb.getName().equals(defaultParse)) {
+                        setDefaultParse(pb);
+                        break;
+                    }
+                }
+            }
+            if (mDefaultParse == null) {
+                setDefaultParse(parseBeanList.get(0));
+            }
+        }
+        // ===================== 修改的解析处理结束 =====================
 
+        // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
+        liveChannelGroupList.clear();
+        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://4941.kstore.space/yun/lib/live");
+        String epgURL = Hawk.get(HawkConfig.EPG_URL, "");
         String liveURL_final = null;
         try {
             if (infoJson.has("lives") && infoJson.get("lives").getAsJsonArray() != null) {
@@ -437,7 +450,6 @@ public class ApiConfig {
                     String url = lives.substring(index, endIndex);
                     url = DefaultConfig.checkReplaceProxy(url);
 
-                    //clan
                     String extUrl = Uri.parse(url).getQueryParameter("ext");
                     if (extUrl != null && !extUrl.isEmpty()) {
                         String extUrlFix;
@@ -450,45 +462,28 @@ public class ApiConfig {
                             extUrlFix = clanContentFix(clanToAddress(apiUrl), extUrlFix);
                         }
 
-                        // takagen99: Capture Live URL into Config
                         System.out.println("Live URL :" + extUrlFix);
                         putLiveHistory(extUrlFix);
-                        // Overwrite with Live URL from Settings
                         if (StringUtils.isBlank(liveURL)) {
                             Hawk.put(HawkConfig.LIVE_URL, extUrlFix);
                         } else {
                             extUrlFix = liveURL;
                         }
 
-                        // Final Live URL
                         liveURL_final = extUrlFix;
-
-//                    // Encoding the Live URL
-//                    extUrlFix = Base64.encodeToString(extUrlFix.getBytes("UTF-8"), Base64.DEFAULT | Base64.URL_SAFE | Base64.NO_WRAP);
-//                    url = url.replace(extUrl, extUrlFix);
                     }
 
-                    // takagen99 : Getting EPG URL from File Config & put into Settings
                     if (livesOBJ.has("epg")) {
                         String epg = livesOBJ.get("epg").getAsString();
                         System.out.println("EPG URL :" + epg);
                         putEPGHistory(epg);
-                        // Overwrite with EPG URL from Settings
                         if (StringUtils.isBlank(epgURL)) {
                             Hawk.put(HawkConfig.EPG_URL, epg);
                         } else {
                             Hawk.put(HawkConfig.EPG_URL, epgURL);
                         }
                     }
-
-//                // Populate Live Channel Listing
-//                LiveChannelGroup liveChannelGroup = new LiveChannelGroup();
-//                liveChannelGroup.setGroupName(url);
-//                liveChannelGroupList.add(liveChannelGroup);
-
                 } else {
-
-                    // if FongMi Live URL Formatting exists
                     if (!lives.contains("type")) {
                         loadLives(infoJson.get("lives").getAsJsonArray());
                     } else {
@@ -498,12 +493,10 @@ public class ApiConfig {
                         if (type.equals("0")) {
                             String url = fengMiLives.get("url").getAsString();
 
-                            // takagen99 : Getting EPG URL from File Config & put into Settings
                             if (fengMiLives.has("epg")) {
                                 String epg = fengMiLives.get("epg").getAsString();
                                 System.out.println("EPG URL :" + epg);
                                 putEPGHistory(epg);
-                                // Overwrite with EPG URL from Settings
                                 if (StringUtils.isBlank(epgURL)) {
                                     Hawk.put(HawkConfig.EPG_URL, epg);
                                 } else {
@@ -512,26 +505,20 @@ public class ApiConfig {
                             }
 
                             if (url.startsWith("http")) {
-                                // takagen99: Capture Live URL into Settings
                                 System.out.println("Live URL :" + url);
                                 putLiveHistory(url);
-                                // Overwrite with Live URL from Settings
                                 if (StringUtils.isBlank(liveURL)) {
                                     Hawk.put(HawkConfig.LIVE_URL, url);
                                 } else {
                                     url = liveURL;
                                 }
 
-                                // Final Live URL
                                 liveURL_final = url;
-
-//                            url = Base64.encodeToString(url.getBytes("UTF-8"), Base64.DEFAULT | Base64.URL_SAFE | Base64.NO_WRAP);
                             }
                         }
                     }
                 }
 
-                // takagen99: Load Live Channel from settings URL (WIP)
                 if (StringUtils.isBlank(liveURL_final)) {
                     liveURL_final = liveURL;
                 }
@@ -541,13 +528,10 @@ public class ApiConfig {
                 liveChannelGroup.setGroupName(liveURL_final);
                 liveChannelGroupList.add(liveChannelGroup);
             }
-
-
         } catch (Throwable th) {
             th.printStackTrace();
         }
 
-        // Video parse rule for host
         if (infoJson.has("rules")) {
             VideoParseRuler.clearRule();
             for(JsonElement oneHostRule : infoJson.getAsJsonArray("rules")) {
@@ -599,22 +583,17 @@ public class ApiConfig {
 
         String defaultIJKADS = "{\"ijk\":[{\"options\":[{\"name\":\"opensles\",\"category\":4,\"value\":\"0\"},{\"name\":\"overlay-format\",\"category\":4,\"value\":\"842225234\"},{\"name\":\"framedrop\",\"category\":4,\"value\":\"0\"},{\"name\":\"soundtouch\",\"category\":4,\"value\":\"1\"},{\"name\":\"start-on-prepared\",\"category\":4,\"value\":\"1\"},{\"name\":\"http-detect-rangeupport\",\"category\":1,\"value\":\"0\"},{\"name\":\"fflags\",\"category\":1,\"value\":\"fastseek\"},{\"name\":\"skip_loop_filter\",\"category\":2,\"value\":\"48\"},{\"name\":\"reconnect\",\"category\":4,\"value\":\"1\"},{\"name\":\"enable-accurate-seek\",\"category\":4,\"value\":\"0\"},{\"name\":\"mediacodec\",\"category\":4,\"value\":\"0\"},{\"name\":\"mediacodec-auto-rotate\",\"category\":4,\"value\":\"0\"},{\"name\":\"mediacodec-handle-resolution-change\",\"category\":4,\"value\":\"0\"},{\"name\":\"mediacodec-hevc\",\"category\":4,\"value\":\"0\"},{\"name\":\"dns_cache_timeout\",\"category\":1,\"value\":\"600000000\"}],\"group\":\"软解码\"},{\"options\":[{\"name\":\"opensles\",\"category\":4,\"value\":\"0\"},{\"name\":\"overlay-format\",\"category\":4,\"value\":\"842225234\"},{\"name\":\"framedrop\",\"category\":4,\"value\":\"0\"},{\"name\":\"soundtouch\",\"category\":4,\"value\":\"1\"},{\"name\":\"start-on-prepared\",\"category\":4,\"value\":\"1\"},{\"name\":\"http-detect-rangeupport\",\"category\":1,\"value\":\"0\"},{\"name\":\"fflags\",\"category\":1,\"value\":\"fastseek\"},{\"name\":\"skip_loop_filter\",\"category\":2,\"value\":\"48\"},{\"name\":\"reconnect\",\"category\":4,\"value\":\"1\"},{\"name\":\"enable-accurate-seek\",\"category\":4,\"value\":\"0\"},{\"name\":\"mediacodec\",\"category\":4,\"value\":\"1\"},{\"name\":\"mediacodec-auto-rotate\",\"category\":4,\"value\":\"1\"},{\"name\":\"mediacodec-handle-resolution-change\",\"category\":4,\"value\":\"1\"},{\"name\":\"mediacodec-hevc\",\"category\":4,\"value\":\"1\"},{\"name\":\"dns_cache_timeout\",\"category\":1,\"value\":\"600000000\"}],\"group\":\"硬解码\"}],\"ads\":[\"mimg.0c1q0l.cn\",\"www.googletagmanager.com\",\"www.google-analytics.com\",\"mc.usihnbcq.cn\",\"mg.g1mm3d.cn\",\"mscs.svaeuzh.cn\",\"cnzz.hhttm.top\",\"tp.vinuxhome.com\",\"cnzz.mmstat.com\",\"www.baihuillq.com\",\"s23.cnzz.com\",\"z3.cnzz.com\",\"c.cnzz.com\",\"stj.v1vo.top\",\"z12.cnzz.com\",\"img.mosflower.cn\",\"tips.gamevvip.com\",\"ehwe.yhdtns.com\",\"xdn.cqqc3.com\",\"www.jixunkyy.cn\",\"sp.chemacid.cn\",\"hm.baidu.com\",\"s9.cnzz.com\",\"z6.cnzz.com\",\"um.cavuc.com\",\"mav.mavuz.com\",\"wofwk.aoidf3.com\",\"z5.cnzz.com\",\"xc.hubeijieshikj.cn\",\"tj.tianwenhu.com\",\"xg.gars57.cn\",\"k.jinxiuzhilv.com\",\"cdn.bootcss.com\",\"ppl.xunzhuo123.com\",\"xomk.jiangjunmh.top\",\"img.xunzhuo123.com\",\"z1.cnzz.com\",\"s13.cnzz.com\",\"xg.huataisangao.cn\",\"z7.cnzz.com\",\"xg.huataisangao.cn\",\"z2.cnzz.com\",\"s96.cnzz.com\",\"q11.cnzz.com\",\"thy.dacedsfa.cn\",\"xg.whsbpw.cn\",\"s19.cnzz.com\",\"z8.cnzz.com\",\"s4.cnzz.com\",\"f5w.as12df.top\",\"ae01.alicdn.com\",\"www.92424.cn\",\"k.wudejia.com\",\"vivovip.mmszxc.top\",\"qiu.xixiqiu.com\",\"cdnjs.hnfenxun.com\",\"cms.qdwght.com\"]}";
         JsonObject defaultJson = new Gson().fromJson(defaultIJKADS, JsonObject.class);
-        // 广告地址
         if (AdBlocker.isEmpty()) {
-//            AdBlocker.clear();
-            //追加的广告拦截
             if (infoJson.has("ads")) {
                 for (JsonElement host : infoJson.getAsJsonArray("ads")) {
                     AdBlocker.addAdHost(host.getAsString());
                 }
             } else {
-                //默认广告拦截
                 for (JsonElement host : defaultJson.getAsJsonArray("ads")) {
                     AdBlocker.addAdHost(host.getAsString());
                 }
             }
         }
-        // IJK解码配置
         if (ijkCodes == null) {
             ijkCodes = new ArrayList<>();
             boolean foundOldSelect = false;
@@ -719,12 +698,9 @@ public class ApiConfig {
     }
 
     public Spider getCSP(SourceBean sourceBean) {
-
-        // Getting js api
         if (sourceBean.getApi().endsWith(".js") || sourceBean.getApi().contains(".js?")) {
             return jsLoader.getSpider(sourceBean.getKey(), sourceBean.getApi(), sourceBean.getExt(), sourceBean.getJar());
         }
-
         return jarLoader.getSpider(sourceBean.getKey(), sourceBean.getApi(), sourceBean.getExt(), sourceBean.getJar());
     }
 
@@ -745,15 +721,12 @@ public class ApiConfig {
 
     public interface LoadConfigCallback {
         void success();
-
         void retry();
-
         void error(String msg);
     }
 
     public interface FastParseCallback {
         void success(boolean parse, String url, Map<String, String> header);
-
         void fail(int code, String msg);
     }
 
@@ -847,11 +820,11 @@ public class ApiConfig {
         return content;
     }
 
-    public void clearJarLoader()
-    {
+    public void clearJarLoader() {
         jarLoader.clear();
     }
-    private void addSuperParse(){
+
+    private void addSuperParse() {
         ParseBean superPb = new ParseBean();
         superPb.setName("超级解析");
         superPb.setUrl("SuperParse");
@@ -859,15 +832,14 @@ public class ApiConfig {
         superPb.setType(4);
         parseBeanList.add(0, superPb);
     }
-    public void clearLoader(){
+
+    public void clearLoader() {
         jarLoader.clear();
     }
     
     String miTV(String url) {
         if (url.startsWith("p") || url.startsWith("mitv")) {
-
         }
         return url;
     }
-
 }
