@@ -410,7 +410,30 @@ public class ApiConfig {
             }
         }
 
-        // 2. JSON配置的解析器
+        // 2. 内置解析器 (不显示在TVBox界面)
+        List<ParseBean> builtInParsers = new ArrayList<>();
+        
+        // 解析器1
+        ParseBean pb1 = new ParseBean();
+        pb1.setName(""); // 空名称表示不显示
+        pb1.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
+        pb1.setExt("");
+        pb1.setType(1);
+        pb1.setBuiltIn(true); // 标记为内置解析器
+        builtInParsers.add(pb1);
+        
+        // 解析器2
+        ParseBean pb2 = new ParseBean();
+        pb2.setName("");
+        pb2.setUrl("https://jx.84jia.com/api/?key=JBPsZJyg2q5Vn3nZP3&url=");
+        pb2.setExt("");
+        pb2.setType(1);
+        pb2.setBuiltIn(true);
+        builtInParsers.add(pb2);
+        
+        parseBeanList.addAll(builtInParsers);
+
+        // 3. JSON配置的解析器
         if (infoJson.has("parses")) {
             JsonArray parses = infoJson.get("parses").getAsJsonArray();
             for (JsonElement opt : parses) {
@@ -423,34 +446,6 @@ public class ApiConfig {
                 pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
                 parseBeanList.add(pb);
             }
-        }
-
-        // 3. 内置解析器 (不显示在TVBox界面)
-        if (parseBeanList.isEmpty()) {
-            // 内置解析器列表
-            List<ParseBean> builtInParsers = new ArrayList<>();
-            
-            // 解析器1
-            ParseBean pb1 = new ParseBean();
-            pb1.setName(""); // 空名称表示不显示
-            pb1.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
-            pb1.setExt("");
-            pb1.setType(1);
-            pb1.setBuiltIn(true); // 标记为内置解析器
-            builtInParsers.add(pb1);
-            
-            
-            // 解析器2
-            ParseBean pb2 = new ParseBean();
-            pb3.setName("");
-            pb3.setUrl("https://jx.84jia.com/api/?key=JBPsZJyg2q5Vn3nZP3&url=");
-            pb3.setExt("");
-            pb3.setType(1);
-            pb3.setBuiltIn(true);
-            builtInParsers.add(pb2);
-            
-            // 按顺序尝试添加内置解析器
-            parseBeanList.addAll(builtInParsers);
         }
 
         // 添加超级解析
@@ -822,7 +817,7 @@ public class ApiConfig {
     public List<ParseBean> getParseBeanList() {
         List<ParseBean> visibleParses = new ArrayList<>();
         for (ParseBean pb : parseBeanList) {
-            if (!pb.isBuiltIn() && !TextUtils.isEmpty(pb.getName()))) {
+            if (!pb.isBuiltIn() && !TextUtils.isEmpty(pb.getName())) {
                 visibleParses.add(pb);
             }
         }
