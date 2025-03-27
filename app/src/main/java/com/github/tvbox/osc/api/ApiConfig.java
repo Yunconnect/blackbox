@@ -389,51 +389,7 @@ public class ApiConfig {
         // ===================== 修改的解析处理开始 =====================
         parseBeanList.clear();
         
-        // 1. 用户指定的解析器 (从设置中加载)
-        String userParsers = Hawk.get(HawkConfig.CUSTOM_PARSER, "");
-        if (!TextUtils.isEmpty(userParsers)) {
-            try {
-                JsonArray userParserArray = new Gson().fromJson(userParsers, JsonArray.class);
-                for (JsonElement opt : userParserArray) {
-                    JsonObject obj = (JsonObject) opt;
-                    ParseBean pb = new ParseBean();
-                    pb.setName(obj.get("name").getAsString().trim());
-                    pb.setUrl(obj.get("url").getAsString().trim());
-                    String ext = obj.has("ext") ? obj.get("ext").getAsJsonObject().toString() : "";
-                    pb.setExt(ext);
-                    pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
-                    pb.setUserDefined(true); // 标记为用户自定义解析器
-                    parseBeanList.add(pb);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        // 2. 内置解析器 (不显示在TVBox界面)
-        List<ParseBean> builtInParsers = new ArrayList<>();
-        
-        // 解析器1
-        ParseBean pb1 = new ParseBean();
-        pb1.setName(""); // 空名称表示不显示
-        pb1.setUrl("https://json.puketv.com/api/?key=p3bjYKMRG9oWNkuctn&url=");
-        pb1.setExt("");
-        pb1.setType(1);
-        pb1.setBuiltIn(true); // 标记为内置解析器
-        builtInParsers.add(pb1);
-        
-        // 解析器2
-        ParseBean pb2 = new ParseBean();
-        pb2.setName("");
-        pb2.setUrl("https://jx.84jia.com/api/?key=JBPsZJyg2q5Vn3nZP3&url=");
-        pb2.setExt("");
-        pb2.setType(1);
-        pb2.setBuiltIn(true);
-        builtInParsers.add(pb2);
-        
-        parseBeanList.addAll(builtInParsers);
-
-        // 3. JSON配置的解析器
+        // 1. 优先加载配置中的解析
         if (infoJson.has("parses")) {
             JsonArray parses = infoJson.get("parses").getAsJsonArray();
             for (JsonElement opt : parses) {
@@ -446,14 +402,26 @@ public class ApiConfig {
                 pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
                 parseBeanList.add(pb);
             }
+            
+            if(!parseBeanList.isEmpty()){
+                addSuperParse();
+            }
+        }
+        
+        // 2. 如果没有配置则添加默认解析（修改后的部分）
+        if (parseBeanList.isEmpty()) {
+            ParseBean defaultPb = new ParseBean();
+            defaultPb.setName("");  // 设置为空字符串，不会显示名称
+            defaultPb.setUrl("https://jx.84jia.com/api/?key=JBPsZJyg2q5Vn3nZP3&url=");
+            defaultPb.setExt("");
+            defaultPb.setType(1);
+            defaultPb.setDefault(true); // 直接设置为默认解析
+            parseBeanList.add(defaultPb);
+            mDefaultParse = defaultPb; // 直接设置为当前默认解析
+            Hawk.put(HawkConfig.DEFAULT_PARSE, ""); // 存储空名称
         }
 
-        // 添加超级解析
-        if(!parseBeanList.isEmpty()){
-            addSuperParse();
-        }
-
-        // 设置默认解析
+        // 3. 设置默认解析（简化逻辑，因为上面已经处理）
         if (!parseBeanList.isEmpty() && mDefaultParse == null) {
             String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
             if (!TextUtils.isEmpty(defaultParse)) {
@@ -465,29 +433,7 @@ public class ApiConfig {
                 }
             }
             if (mDefaultParse == null) {
-                // 优先尝试使用用户指定的默认解析
-                boolean found = false;
-                for (ParseBean pb : parseBeanList) {
-                    if (pb.isUserDefined()) {
-                        setDefaultParse(pb);
-                        found = true;
-                        break;
-                    }
-                }
-                // 如果没有用户指定的，使用第一个非内置解析
-                if (!found) {
-                    for (ParseBean pb : parseBeanList) {
-                        if (!pb.isBuiltIn()) {
-                            setDefaultParse(pb);
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                // 如果全部都是内置解析，使用第一个
-                if (!found) {
-                    setDefaultParse(parseBeanList.get(0));
-                }
+                setDefaultParse(parseBeanList.get(0));
             }
         }
         // ===================== 修改的解析处理结束 =====================
@@ -815,13 +761,7 @@ public class ApiConfig {
     }
 
     public List<ParseBean> getParseBeanList() {
-        List<ParseBean> visibleParses = new ArrayList<>();
-        for (ParseBean pb : parseBeanList) {
-            if (!pb.isBuiltIn() && !TextUtils.isEmpty(pb.getName())) {
-                visibleParses.add(pb);
-            }
-        }
-        return visibleParses;
+        return parseBeanList;
     }
 
     public List<String> getVipParseFlags() {
