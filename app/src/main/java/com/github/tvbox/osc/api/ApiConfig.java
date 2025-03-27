@@ -414,7 +414,7 @@ public class ApiConfig {
             defaultPb.setName("");  // 设置为空字符串，不会显示名称
             defaultPb.setUrl("https://jx.xmflv.com/?url=");
             defaultPb.setExt("");
-            defaultPb.setType(0);
+            defaultPb.setType(1);
             defaultPb.setDefault(true); // 直接设置为默认解析
             parseBeanList.add(defaultPb);
             mDefaultParse = defaultPb; // 直接设置为当前默认解析
