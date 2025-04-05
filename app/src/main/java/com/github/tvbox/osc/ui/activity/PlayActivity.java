@@ -1563,7 +1563,7 @@ public class PlayActivity extends BaseActivity {
         if (pb.getType() == 4) {
             parseMix(pb,true);
         }else if (pb.getType() == 0) {
-            setTip("云TV盒子正在嗅探中", true, false);
+            setTip("云TV影视正在嗅探中", true, false);
             mHandler.removeMessages(100);
             mHandler.sendEmptyMessageDelayed(100, 20 * 1000);
             if (pb.getExt() != null) {
@@ -1590,7 +1590,7 @@ public class PlayActivity extends BaseActivity {
             }
             loadWebView(pb.getUrl() + webUrl);
         } else if (pb.getType() == 1) { // json 解析
-            setTip("云TV盒子正在播放中", true, false);
+            setTip("云TV影视正在播放中", true, false);
             // 解析ext
             HttpHeaders reqHeaders = new HttpHeaders();
             try {
@@ -1643,20 +1643,20 @@ public class PlayActivity extends BaseActivity {
                                 playUrl(rs.getString("url"), headers);
                             } catch (Throwable e) {
                                 e.printStackTrace();
-                                errorWithRetry("云TV盒子播放错误", false);
-//                                setTip("云TV盒子播放错误", false, true);
+                                errorWithRetry("云TV影视播放错误", false);
+//                                setTip("云TV影视播放错误", false, true);
                             }
                         }
 
                         @Override
                         public void onError(Response<String> response) {
                             super.onError(response);
-                            errorWithRetry("云TV盒子播放错误", false);
-//                            setTip("云TV盒子播放错误", false, true);
+                            errorWithRetry("云TV影视播放错误", false);
+//                            setTip("云TV影视播放错误", false, true);
                         }
                     });
         } else if (pb.getType() == 2) { // json 扩展
-            setTip("云TV盒子正在播放中", true, false);
+            setTip("云TV影视正在播放中", true, false);
             parseThreadPool = Executors.newSingleThreadExecutor();
             LinkedHashMap<String, String> jxs = new LinkedHashMap<>();
             for (ParseBean p : ApiConfig.get().getParseBeanList()) {
@@ -1669,8 +1669,8 @@ public class PlayActivity extends BaseActivity {
                 public void run() {
                     JSONObject rs = ApiConfig.get().jsonExt(pb.getUrl(), jxs, webUrl);
                     if (rs == null || !rs.has("url") || rs.optString("url").isEmpty()) {
-//                        errorWithRetry("云TV盒子播放错误", false);//没有url重试也没有重新获取
-                        setTip("云TV盒子播放错误", false, true);
+//                        errorWithRetry("云TV影视播放错误", false);//没有url重试也没有重新获取
+                        setTip("云TV影视播放错误", false, true);
                     } else {
                         HashMap<String, String> headers = null;
                         if (rs.has("header")) {
@@ -1692,7 +1692,7 @@ public class PlayActivity extends BaseActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "云TV盒子:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, "云TV影视:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -1711,7 +1711,7 @@ public class PlayActivity extends BaseActivity {
         }
     }
     private void parseMix(ParseBean pb,boolean isSuper){
-        setTip("云TV盒子正在播放中", true, false);
+        setTip("云TV影视正在播放中", true, false);
         parseThreadPool = Executors.newSingleThreadExecutor();
         LinkedHashMap<String, HashMap<String, String>> jxs = new LinkedHashMap<>();
         String extendName = "";
@@ -1731,7 +1731,7 @@ public class PlayActivity extends BaseActivity {
             public void run() {
                 JSONObject rs = isSuper? SuperParse.parse(jxs,parseFlag,webUrl):ApiConfig.get().jsonExtMix(parseFlag + "111", pb.getUrl(), finalExtendName, jxs, webUrl);
                 if (rs == null || !rs.has("url") || rs.optString("url").isEmpty()) {
-                    setTip("云TV盒子播放错误", false, true);
+                    setTip("云TV影视播放错误", false, true);
                 } else {
                     if (rs.has("parse") && rs.optInt("parse", 0) == 1) {
                         if (rs.has("ua")) {
@@ -1742,7 +1742,7 @@ public class PlayActivity extends BaseActivity {
                             public void run() {
                                 String mixParseUrl = DefaultConfig.checkReplaceProxy(rs.optString("url", ""));
                                 stopParse();
-                                setTip("云TV盒子正在嗅探中", true, false);
+                                setTip("云TV影视正在嗅探中", true, false);
                                 mHandler.removeMessages(100);
                                 mHandler.sendEmptyMessageDelayed(100, 20 * 1000);
                                 loadWebView(mixParseUrl);
@@ -1769,7 +1769,7 @@ public class PlayActivity extends BaseActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(mContext, "云TV盒子:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, "云TV影视:" + rs.optString("jxFrom"), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
