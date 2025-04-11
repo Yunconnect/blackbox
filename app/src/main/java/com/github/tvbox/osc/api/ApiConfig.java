@@ -420,7 +420,7 @@ public class ApiConfig {
             defaultPb.setName("默认解析");
             defaultPb.setUrl("https://jx.84jia.com/api/?key=dSxcn60tLUdVb05fwf&url=");
             defaultPb.setExt("");
-            defaultPb.setType(0);
+            defaultPb.setType(1);
             parseBeanList.add(defaultPb);
         }
 
