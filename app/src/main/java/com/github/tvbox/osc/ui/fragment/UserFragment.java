@@ -148,7 +148,7 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
         if(Hawk.get(HawkConfig.HOME_REC, 0) == 0){
             tvRate="豆瓣热播";
         }else if(Hawk.get(HawkConfig.HOME_REC, 0) == 1){
-          tvRate= homeSourceRec != null ? "站点推荐" : "豆瓣热播";
+          tvRate= homeSourceRec != null ? "云TV影视" : "豆瓣热播";
         }
         homeHotVodAdapter = new HomeHotVodAdapter(style,tvRate);
         homeHotVodAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
