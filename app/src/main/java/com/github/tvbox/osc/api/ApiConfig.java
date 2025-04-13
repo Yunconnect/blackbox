@@ -417,10 +417,10 @@ public class ApiConfig {
         // 2. 如果没有配置则添加默认解析
         if (parseBeanList.isEmpty()) {
             ParseBean defaultPb = new ParseBean();
-            defaultPb.setName("");
-            defaultPb.setUrl("https://jx.84jia.com/api/?key=JBPsZJyg2q5Vn3nZP3&url=");
+            defaultPb.setName("云TV影视嗅探");
+            defaultPb.setUrl("https://jx.xmflv.com/?url=");
             defaultPb.setExt("");
-            defaultPb.setType(1);
+            defaultPb.setType(0);
             parseBeanList.add(defaultPb);
         }
 
