@@ -138,10 +138,9 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        // Embedded Source : Update in Strings.xml if required
-        String apiUrl = Hawk.get(HawkConfig.API_URL, HomeActivity.getRes().getString(R.string.app_source));
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://4941.kstore.space/yun/black.bmp");
         if (apiUrl.isEmpty()) {
-            callback.error("源地址为空");
+            callback.error("-1");
             return;
         }
         File cache = new File(App.getInstance().getFilesDir().getAbsolutePath() + "/" + MD5.encode(apiUrl));
@@ -345,7 +344,6 @@ public class ApiConfig {
 
     private static  String jarCache ="true";
     private void parseJson(String apiUrl, String jsonStr) {
-//        pyLoader.setConfig(jsonStr);
         JsonObject infoJson = new Gson().fromJson(jsonStr, JsonObject.class);
         jarCache = DefaultConfig.safeJsonString(infoJson, "jarCache", "true");
         // spider
@@ -394,39 +392,62 @@ public class ApiConfig {
         }
         // 需要使用vip解析的flag
         vipParseFlags = DefaultConfig.safeJsonStringList(infoJson, "flags");
-        // 解析地址
+        
+        // 解析地址 - 修改开始
         parseBeanList.clear();
+        boolean hasCustomParses = false;
+        
+        // 1. 优先加载配置中的解析
         if (infoJson.has("parses")) {
             JsonArray parses = infoJson.get("parses").getAsJsonArray();
-            for (JsonElement opt : parses) {
-                JsonObject obj = (JsonObject) opt;
-                ParseBean pb = new ParseBean();
-                pb.setName(obj.get("name").getAsString().trim());
-                pb.setUrl(obj.get("url").getAsString().trim());
-                String ext = obj.has("ext") ? obj.get("ext").getAsJsonObject().toString() : "";
-                pb.setExt(ext);
-                pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
-                parseBeanList.add(pb);
-            }
-            if(!parseBeanList.isEmpty()){
-                addSuperParse();
+            if (parses.size() > 0) {
+                hasCustomParses = true;
+                for (JsonElement opt : parses) {
+                    JsonObject obj = (JsonObject) opt;
+                    ParseBean pb = new ParseBean();
+                    pb.setName(obj.get("name").getAsString().trim());
+                    pb.setUrl(obj.get("url").getAsString().trim());
+                    String ext = obj.has("ext") ? obj.get("ext").getAsJsonObject().toString() : "";
+                    pb.setExt(ext);
+                    pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
+                    parseBeanList.add(pb);
+                }
             }
         }
+        
+        // 2. 如果没有配置解析，则添加默认解析
+        if (!hasCustomParses) {
+            ParseBean defaultParse = new ParseBean();
+            defaultParse.setName("默认解析");
+            defaultParse.setUrl("https://jx.84jia.com/api/?key=dSxcn60tLUdVb05fwf&url=");
+            defaultParse.setExt("");
+            defaultParse.setType(0);
+            parseBeanList.add(defaultParse);
+        }
+        
+        // 3. 添加超级解析（无论是否有自定义解析都添加）
+        addSuperParse();
+        // 解析地址 - 修改结束
+
         // 获取默认解析
         if (parseBeanList != null && parseBeanList.size() > 0) {
             String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
-            if (!TextUtils.isEmpty(defaultParse))
+            if (!TextUtils.isEmpty(defaultParse)) {
                 for (ParseBean pb : parseBeanList) {
-                    if (pb.getName().equals(defaultParse))
+                    if (pb.getName().equals(defaultParse)) {
                         setDefaultParse(pb);
+                        break;
+                    }
                 }
-            if (mDefaultParse == null)
+            }
+            if (mDefaultParse == null) {
                 setDefaultParse(parseBeanList.get(0));
+            }
         }
 
         // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
         liveChannelGroupList.clear();           //修复从后台切换重复加载频道列表
-        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "");
+        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://4941.kstore.space/yun/lib/live");
         String epgURL  = Hawk.get(HawkConfig.EPG_URL, "");
 
         String liveURL_final = null;
@@ -749,7 +770,7 @@ public class ApiConfig {
     public Spider getPyCSP(String url) {
         return pyLoader.getSpider(MD5.string2MD5(url), url, "");
     }
-	
+    
     public Object[] proxyLocal(Map<String,String> param) {
         if ("js".equals(param.get("do"))) {
             return jsLoader.proxyInvoke(param);
@@ -895,5 +916,4 @@ public class ApiConfig {
         }
         return url;
     }
-
 }
