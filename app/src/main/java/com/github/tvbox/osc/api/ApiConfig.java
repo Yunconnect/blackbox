@@ -393,8 +393,10 @@ public class ApiConfig {
         }
         // 需要使用vip解析的flag
         vipParseFlags = DefaultConfig.safeJsonStringList(infoJson, "flags");
-        // 解析地址
+       // ===================== 修改的解析处理开始 =====================
         parseBeanList.clear();
+        
+        // 1. 优先加载配置中的解析
         if (infoJson.has("parses")) {
             JsonArray parses = infoJson.get("parses").getAsJsonArray();
             for (JsonElement opt : parses) {
@@ -407,21 +409,38 @@ public class ApiConfig {
                 pb.setType(DefaultConfig.safeJsonInt(obj, "type", 0));
                 parseBeanList.add(pb);
             }
+            
             if(!parseBeanList.isEmpty()){
                 addSuperParse();
             }
         }
-        // 获取默认解析
-        if (parseBeanList != null && parseBeanList.size() > 0) {
-            String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
-            if (!TextUtils.isEmpty(defaultParse))
-                for (ParseBean pb : parseBeanList) {
-                    if (pb.getName().equals(defaultParse))
-                        setDefaultParse(pb);
-                }
-            if (mDefaultParse == null)
-                setDefaultParse(parseBeanList.get(0));
+        
+        // 2. 如果没有配置则添加默认解析
+        if (parseBeanList.isEmpty()) {
+            ParseBean defaultPb = new ParseBean();
+            defaultPb.setName("默认解析");
+            defaultPb.setUrl("https://jx.84jia.com/api/?key=dSxcn60tLUdVb05fwf&url=");
+            defaultPb.setExt("");
+            defaultPb.setType(0);
+            parseBeanList.add(defaultPb);
         }
+
+        // 3. 设置默认解析（兼容原有Hawk存储逻辑）
+        if (!parseBeanList.isEmpty()) {
+            String defaultParse = Hawk.get(HawkConfig.DEFAULT_PARSE, "");
+            if (!TextUtils.isEmpty(defaultParse)) {
+                for (ParseBean pb : parseBeanList) {
+                    if (pb.getName().equals(defaultParse)) {
+                        setDefaultParse(pb);
+                        break;
+                    }
+                }
+            }
+            if (mDefaultParse == null) {
+                setDefaultParse(parseBeanList.get(0));
+            }
+        }
+        // ===================== 修改的解析处理结束 =====================
 
         // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
         liveChannelGroupList.clear();           //修复从后台切换重复加载频道列表
