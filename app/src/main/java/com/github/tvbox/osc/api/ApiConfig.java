@@ -136,7 +136,7 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://4941.kstore.space/yun/black.bmp");
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://4941.kstore.space");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;  
@@ -412,7 +412,7 @@ public class ApiConfig {
         if (parseBeanList.isEmpty()) {
             ParseBean defaultPb = new ParseBean();
             defaultPb.setName("");  // 设置为空字符串，不会显示名称
-            defaultPb.setUrl("https://jx.84jia.com/api/?key=dSxcn60tLUdVb05fwf&url=");
+            defaultPb.setUrl("https://jx.84jia.com");
             defaultPb.setExt("");
             defaultPb.setType(1);
             defaultPb.setDefault(true); // 直接设置为默认解析
@@ -440,7 +440,7 @@ public class ApiConfig {
 
         // takagen99: Check if Live URL is setup in Settings, if no, get from File Config
         liveChannelGroupList.clear();
-        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://4941.kstore.space/yun/lib/live");
+        String liveURL = Hawk.get(HawkConfig.LIVE_URL, "https://4941.kstore.space");
         String epgURL = Hawk.get(HawkConfig.EPG_URL, "");
         String liveURL_final = null;
         try {
