@@ -1651,8 +1651,8 @@ public class PlayActivity extends BaseActivity {
                         @Override
                         public void onError(Response<String> response) {
                             super.onError(response);
-                            errorWithRetry("云TV盒子播放错误", false);
-//                            setTip("云TV盒子播放错误", false, true);
+                            errorWithRetry("解析错误", false);
+//                            setTip("解析错误", false, true);
                         }
                     });
         } else if (pb.getType() == 2) { // json 扩展
