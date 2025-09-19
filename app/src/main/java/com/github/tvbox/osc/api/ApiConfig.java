@@ -138,7 +138,7 @@ public class ApiConfig {
     }
 
     public void loadConfig(boolean useCache, LoadConfigCallback callback, Activity activity) {
-        String apiUrl = Hawk.get(HawkConfig.API_URL, "http://www.ddys110.top/ddysceshi/ddys.json");
+        String apiUrl = Hawk.get(HawkConfig.API_URL, "https://gitee.com/yunsoftbox/yunbox/raw/master/360.bmp");
         if (apiUrl.isEmpty()) {
             callback.error("-1");
             return;
